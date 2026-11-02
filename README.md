@@ -23,7 +23,7 @@ Las instrucciones de la skill están en castellano.
 Con la CLI de [skills](https://skills.sh/):
 
 ```bash
-npx skills add <tu-usuario>/navidev-abap-skills
+npx skills add irodrigob/navidev-abap-skills
 ```
 
 O manualmente, copiando la carpeta `skills/navidev-abap-dev-standards/` en la carpeta de skills de tu agente. En Claude Code:
