@@ -55,3 +55,7 @@ Para no tener que indicarla en cada sesión, añade una línea a las instruccion
 La carpeta `evals/navidev-abap-dev-standards/` contiene casos de prueba de la skill: un helper RAP, una ayuda de búsqueda On premise, la petición de datos antes de crear objetos y una revisión de código. Cada caso tiene la petición (`prompt.md`), el resultado esperado (`case.yaml`) y los criterios de evaluación (`graders/`). Usan un área de nombres ficticia (`/ACME/`).
 
 Están fuera de la carpeta de la skill para que no se instalen junto con ella.
+
+## Licencia
+
+[MIT](LICENSE)
