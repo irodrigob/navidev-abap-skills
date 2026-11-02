@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: domain-value-help-onpremise
+expected_outcome: |
+  Two CDS view entities: /ACME/I_TRD_DOC_TYPE reading dd07l/dd07t (On premise version) with cast to /acme/e_trd_doc_type, language and text, dataCategory TEXT; and /ACME/C_TRD_DOC_TYPE_SH selecting from the I_ view with only value and description, dataCategory VALUE_HELP.

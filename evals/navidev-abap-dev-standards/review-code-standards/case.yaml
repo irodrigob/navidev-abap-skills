@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: review-code-standards
+expected_outcome: |
+  A list of violations: ty_ prefixes instead of ts_/tt_, chained TYPES and DATA declarations, WITH DEFAULT KEY instead of WITH EMPTY KEY, CREATE PUBLIC without CREATE_INSTANCE, parameters company/result instead of IV_COMPANY/RT_..., attributes rates/lv_count instead of mt_/mv_, constant without cv_ prefix (and better placed in a _DATA class), field-symbol <fs> instead of <ls_rate>; with corrected code.

@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: rap-helper-cloud
+expected_outcome: |
+  A complete helper class /ACME/CL_..._HELPER_... (CREATE PRIVATE, create_instance) with public ts_/tt_ types on /ACME/I_TRD002, EDIT_OPERATION upsert by CompanyCode+OperationId calling CREATE_OPERATION, DELETE_OPERATION, a query method with optional ranges returning RT_DATA, IV_COMMIT default abap_false, EV_NODEKEY and ES_RETURN bapiret2 using message class /ACME/TRADING.

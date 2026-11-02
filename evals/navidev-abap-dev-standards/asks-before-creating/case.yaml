@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: asks-before-creating
+expected_outcome: |
+  The assistant does not create any object; it asks whether the system is ABAP Cloud or On premise, asks for the package, the transport request and the namespace, and proposes the table fields and names following the conventions (<namespace>A_..., <namespace>CL_..._DATA) without inventing a namespace.
