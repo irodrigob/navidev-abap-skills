@@ -18,6 +18,7 @@ Patrón general: `<área><prefijo>_<descriptivo>[_<sufijo>]`.
 7. Cloud identity and access management
 8. Clases de mensajes
 9. Objetos de repositorio RAP (transport object, maintenance object)
+10. Nombres de campos (clave UUID de un RAP managed y enlaces con padre y raíz)
 
 ## 1. Clases e interfaces
 
@@ -120,3 +121,106 @@ Ejemplo completo para la tabla `/NS/A_TRD014`:
 | Singleton: entity | `STTrd014` |
 | Tabla: draft / interface / projection | `/NS/D_TRD014`, `/NS/I_TRD014`, `/NS/C_TRD014` |
 | Tabla: entity | `Trd014` |
+
+## 10. Nombres de campos
+
+### Clave UUID de un RAP managed
+
+En un RAP de tipo `managed`, el campo clave técnico de tipo `sysuuid_x16` se llama siempre igual, para que cualquiera lo reconozca en cualquier aplicación:
+
+| Dónde | Nombre |
+| --- | --- |
+| Tabla de base de datos y tabla draft | `node_key` |
+| CDS (`R_`, `I_`, `C_`) y behavior definition | `NodeKey` |
+
+### Campos de enlace con el padre y la raíz
+
+Las entidades hijas tienen su propio `node_key` como clave y, además, campos que las enlazan con los niveles superiores. Estos campos **no son clave**, ni en la tabla ni en las CDS:
+
+| Nivel | Tabla | CDS y behavior definition | Contiene | Clave |
+| --- | --- | --- | --- | --- |
+| 1 (raíz) | `node_key` | `NodeKey` | UUID propio | Sí |
+| 2 | `node_key` | `NodeKey` | UUID propio | Sí |
+| 2 | `node_parent` | `NodeParent` | `node_key` del nivel 1 | No |
+| 3 | `node_key` | `NodeKey` | UUID propio | Sí |
+| 3 | `node_parent` | `NodeParent` | `node_key` del nivel 2 | No |
+| 3 | `node_root` | `NodeRoot` | `node_key` del nivel 1 | No |
+| 4 | `node_key` | `NodeKey` | UUID propio | Sí |
+| 4 | `node_parent` | `NodeParent` | `node_key` del nivel 3 | No |
+| 4 | `node_root` | `NodeRoot` | `node_key` del nivel 1 | No |
+
+La regla para cualquier nivel N:
+
+- `node_parent` = `node_key` del nivel N-1 (el padre directo). Existe desde el nivel 2.
+- `node_root` = `node_key` del nivel 1 (la raíz), sea cual sea la profundidad. Existe desde el nivel 3. En el nivel 2 no hace falta, porque el padre ya es la raíz y coincidiría con `node_parent`.
+
+Ejemplo de la raíz:
+
+```abap
+// Tabla /NS/A_TRD002
+define table /ns/a_trd002 {
+  key client   : abap.clnt not null;
+  key node_key : sysuuid_x16 not null;
+  ...
+}
+```
+
+```
+// CDS interface /NS/I_TRD002
+define root view entity /NS/I_TRD002
+  as select from /ns/a_trd002
+{
+  key node_key as NodeKey,
+  ...
+}
+```
+
+```
+// Behavior definition
+define behavior for /NS/I_TRD002 alias Operation
+persistent table /ns/a_trd002
+...
+{
+  field ( readonly, numbering : managed ) NodeKey;
+
+  mapping for /ns/a_trd002
+  {
+    NodeKey = node_key;
+    ...
+  }
+}
+```
+
+Ejemplo de una entidad de tercer nivel:
+
+```abap
+// Tabla /NS/A_TRD004 (nivel 3)
+define table /ns/a_trd004 {
+  key client   : abap.clnt not null;
+  key node_key : sysuuid_x16 not null;
+  node_parent  : sysuuid_x16;
+  node_root    : sysuuid_x16;
+  ...
+}
+```
+
+```
+// CDS interface /NS/I_TRD004 (nivel 3)
+define view entity /NS/I_TRD004
+  as select from /ns/a_trd004
+  association        to parent /NS/I_TRD003 as _Parent on $projection.NodeParent = _Parent.NodeKey
+  association [1..1] to /NS/I_TRD002        as _Root   on $projection.NodeRoot   = _Root.NodeKey
+{
+  key node_key    as NodeKey,
+      node_parent as NodeParent,
+      node_root   as NodeRoot,
+      ...
+      _Parent,
+      _Root
+}
+```
+
+En la behavior definition se mapean igual (`NodeParent = node_parent;`, `NodeRoot = node_root;`).
+
+Al revisar código o diseñar una tabla, señala como incumplimiento cualquier otra denominación de estos campos (`uuid`, `guid`, `id`, `key_uuid`, `parent_uuid`, `root_uuid`...), y también que `node_parent` o `node_root` se declaren como clave.
+

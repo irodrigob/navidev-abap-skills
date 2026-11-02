@@ -7,7 +7,7 @@ description: Estándar de desarrollo ABAP (área de nombres propia /XXX/ o Z/Y) 
 
 Esta skill recoge unas convenciones de desarrollo ABAP. Su objetivo es que todo lo que se cree en el sistema sea predecible: cualquiera debe poder adivinar el nombre de un objeto, saber dónde están sus tipos y constantes, y cambiar un RAP en un único sitio.
 
-Las reglas y plantillas de esta skill son **el mínimo obligatorio, no el techo**. Cumple siempre las convenciones, pero aporta además lo que haría un buen desarrollador ABAP sénior: validaciones, tratamiento de errores, explicaciones de las decisiones y avisos de lo que el usuario debe revisar.
+Las reglas y plantillas de esta skill son **el mínimo obligatorio, no el techo**. Cumple siempre las convenciones, pero aporta además lo que haría un buen desarrollador ABAP sénior: tratamiento de errores, explicaciones de las decisiones y avisos de lo que el usuario debe revisar. Respeta la responsabilidad de cada clase: un helper de RAP no lleva lógica de negocio ni validaciones de entrada, que corresponden a quien lo llama.
 
 ## 1. Datos de la sesión: entorno, paquete, orden y área
 
@@ -84,6 +84,8 @@ Ejemplo: `/NS/CL_HELPER_CONCILIATION`, con `/NS/` sustituido por el área real (
 | Ayuda de búsqueda | `C_<nombre>_SH` |
 | Service definition / binding V2 / V4 | `UI_` / `UI_<n>_O2` / `UI_<n>_O4` |
 
+En un RAP `managed`, la clave técnica `sysuuid_x16` se llama `node_key` en las tablas y `NodeKey` en las CDS y la behavior definition. Las entidades hijas añaden, **sin ser clave**, `node_parent`/`NodeParent` (desde el nivel 2) y `node_root`/`NodeRoot` (desde el nivel 3). Ver [references/naming.md](references/naming.md), sección 10.
+
 La tabla completa (servicios, comunicación, IAM, mensajes, maintenance objects, parámetros de métodos...) está en **[references/naming.md](references/naming.md)**. Léela siempre que vayas a dar nombre a un objeto de repositorio o a los parámetros de un método.
 
 ## 6. Código ABAP: lo imprescindible
@@ -97,7 +99,8 @@ Las reglas completas con ejemplos están en **[references/abap-code-style.md](re
 - Clases `CREATE PRIVATE` con método estático `CREATE_INSTANCE` que devuelve siempre `NEW #( )` en `RO_INSTANCE` (no singleton), salvo que se indique lo contrario.
 - Constantes y tipos generales de la aplicación en `/NS/CL_<identificador>_DATA`, no repartidos por otras clases.
 - Tipos usados en la firma de métodos públicos, en la sección pública; el resto, en la protegida.
-- Documenta los métodos públicos con ABAP Doc (`"!`) en castellano.
+- **Todos** los métodos (públicos, protegidos y privados) llevan ABAP Doc en castellano, con la descripción en `"! <p class="shorttext synchronized">...</p>` y cada parámetro en `"! @parameter <nombre> | <p class="shorttext">...</p>` (ver [references/abap-code-style.md](references/abap-code-style.md#abap-doc)).
+- Clase de mensajes y tipos de mensaje desde la clase `_DATA` (`cs_message-id`, `cs_message-types-error`...), nunca literales `'E'`/`'S'`.
 
 ## 7. Tareas específicas
 

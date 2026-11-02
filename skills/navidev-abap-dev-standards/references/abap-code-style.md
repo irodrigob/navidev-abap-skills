@@ -131,7 +131,16 @@ CLASS /ns/cl_conc_data DEFINITION
   CREATE PRIVATE.
 
   PUBLIC SECTION.
-    CONSTANTS cv_msgid TYPE symsgid VALUE '/NS/CONC'.
+    " Clase de mensajes y tipos de mensaje de la aplicación
+    CONSTANTS: BEGIN OF cs_message,
+                 id TYPE symsgid VALUE '/NS/CONC',
+                 BEGIN OF types,
+                   error   TYPE symsgty VALUE 'E',
+                   warning TYPE symsgty VALUE 'W',
+                   success TYPE symsgty VALUE 'S',
+                   info    TYPE symsgty VALUE 'I',
+                 END OF types,
+               END OF cs_message.
 
     CONSTANTS: BEGIN OF cs_load_status,
                  in_process TYPE /ns/e_conc_load_status VALUE 'IN',
@@ -148,3 +157,27 @@ ENDCLASS.
 ```
 
 Una clase que solo contiene constantes y tipos no necesita `CREATE_INSTANCE`.
+
+Los tipos de mensaje (`E`, `S`, `W`, `I`) se usan siempre a través de `cs_message-types-...`, no como literales en el código.
+
+## ABAP Doc
+
+**Todos** los métodos (públicos, protegidos y privados) llevan ABAP Doc, y cada parámetro una explicación breve. Se usa este patrón, que se ve en el outline de ADT y en la documentación del método (F2), y se sincroniza con las descripciones de la SE24:
+
+```abap
+"! <p class="shorttext synchronized">Crea o actualiza una conciliación</p>
+"! @parameter is_data    | <p class="shorttext">Datos de la conciliación</p>
+"! @parameter iv_commit  | <p class="shorttext">Ejecutar COMMIT ENTITIES</p>
+"! @parameter ev_nodekey | <p class="shorttext">UUID de la conciliación creada o modificada</p>
+"! @parameter es_return  | <p class="shorttext">Mensaje de retorno</p>
+METHODS edit_conciliation
+  IMPORTING is_data    TYPE ts_conciliation
+            iv_commit  TYPE abap_boolean DEFAULT abap_false
+  EXPORTING ev_nodekey TYPE sysuuid_x16
+            es_return  TYPE bapiret2.
+```
+
+- La descripción del método va en `<p class="shorttext synchronized">...</p>`.
+- Cada parámetro va en `@parameter <nombre> | <p class="shorttext">...</p>`, también `RETURNING` y los de `CREATE_INSTANCE`.
+- Los textos van en castellano y describen lo que hace realmente el método. Si copias el ABAP Doc de otra clase, adáptalo a los campos y entidades de esta.
+- Alinea las barras `|` de los parámetros de un mismo método.
